@@ -36,66 +36,68 @@ def get_selected_row(event):
         pass
 
 def view_command():
+    # Clear the current display and populate it with all records from the database
     for row in record_display.get_children():
         record_display.delete(row)
     for row in backend.view():
         record_display.insert("", "end", values=row)
 
 def search_command():
+    # Clear current display and populate it with search results
     for row in record_display.get_children():
         record_display.delete(row)
-    for row in backend.search(title_text.get(), author_text.get(), publisher_text.get(), collection_text.get(),
-                              pages_text.get(), translator_text.get(), edition_text.get(), first_edition_text.get(), 
-                              print_year_text.get(), isbn_text.get()):
+    for row in backend.search(title_text.get(), author_text.get(), publisher_text.get(), collection_text.get(), pages_text.get(), translator_text.get(), edition_text.get(), first_edition_text.get(), print_year_text.get(), isbn_text.get()):
         record_display.insert("", "end", values=row)
 
 def add_command():
+    # Insert new record into the database
     backend.insert(title_text.get(), author_text.get(), publisher_text.get(), collection_text.get(),
-                   pages_text.get(), translator_text.get(), edition_text.get(), first_edition_text.get(),
-                   print_year_text.get(), isbn_text.get())
-    view_command()
+                   pages_text.get(), translator_text.get(), edition_text.get(), first_edition_text.get(), print_year_text.get(), isbn_text.get())
+    view_command() # Refresh the display
 
 def update_command():
-    backend.update(selected_tuple[0], title_text.get(), author_text.get(), publisher_text.get(), collection_text.get(),
-                   pages_text.get(), translator_text.get(), edition_text.get(), first_edition_text.get(),
-                   print_year_text.get(), isbn_text.get())
-    view_command()
+    # Update the selected record in the database
+    backend.update(selected_tuple[0], title_text.get(), author_text.get(), publisher_text.get(), collection_text.get(), pages_text.get(), translator_text.get(), edition_text.get(), first_edition_text.get(),print_year_text.get(), isbn_text.get())
+    view_command() # Refresh the display
 
 def delete_command():
+    # Delete the selected record from the database
     backend.delete(selected_tuple[0])
-    view_command()
+    view_command() # Refresh the display
 
 def close_command():
+    # Close the main window
     window.destroy()
 
 def clear_fields():
+    # Clear all entry fields
     for entry in entries:
         entry.delete(0, END)
 
 def export_to_excel():
-    # Obtener datos de la base de datos
+    # Obtain data from the database
     data = backend.view()
     columns = ["ID", "Title", "Author", "Publisher", "Collection", "Pages", "Translator", "Edition", "First Edition", "Print Year", "ISBN"]
     
-    # Crear un DataFrame con los datos
+    # Create a DataFrame with the data
     df = pd.DataFrame(data, columns=columns)
     
-    # Obtener la fecha y hora actuales
+    # Get the current date and time for the filename
     now = datetime.now().strftime("%Y%m%d_%H%M")
     
-    # Generar el nombre del archivo con la fecha y hora
+    # Generate the filename with the date and time
     file_name = f"books_export_{now}.xlsx"
     
-    # Exportar a un archivo Excel
+    # Export to an Excel file
     df.to_excel(file_name, index=False)
     print(f"Database exported to {file_name}")
 
 # Main window setup
 window = Tk()
-window.title("Biblioteca")
+window.title("Library")
 
 # Labels and Entry fields for book information
-labels = ["Título", "Autor", "Editor", "Colección", "Páginas", "Traductor", "Edición", "Primera Edición", "Año de impresión", "ISBN"]
+labels = ["Title", "Author", "Publisher", "Collection", "Pages", "Translator", "Edition", "First Edition", "Print Year", "ISBN"]
 text_vars = [StringVar() for _ in labels]
 entries = []
 
@@ -128,14 +130,16 @@ record_display.bind('<<TreeviewSelect>>', get_selected_row)
 buttons_frame = tk.Frame(window)
 buttons_frame.grid(row=6, column=4, padx=10, pady=10)
 
-tk.Button(buttons_frame, text="Ver todo", width=12, command=view_command).grid(row=0, column=0, padx=5, pady=5)
-tk.Button(buttons_frame, text="Buscar", width=12, command=search_command).grid(row=1, column=0, padx=5, pady=5)
-tk.Button(buttons_frame, text="Agregar entrada", width=12, command=add_command).grid(row=2, column=0, padx=5, pady=5)
-tk.Button(buttons_frame, text="Actualizar", width=12, command=update_command).grid(row=3, column=0, padx=5, pady=5)
-tk.Button(buttons_frame, text="Borrar selección", width=12, command=delete_command).grid(row=4, column=0, padx=5, pady=5)
-tk.Button(buttons_frame, text="Limpiar", width=12, command=clear_fields).grid(row=5, column=0, padx=5, pady=5)
-tk.Button(buttons_frame, text="Guardar en Excel", width=12, command=export_to_excel).grid(row=6, column=0, padx=5, pady=5)
-tk.Button(buttons_frame, text="Cerrar", width=12, command=close_command).grid(row=7, column=0, padx=5, pady=5)
+# Create action buttons with appropriate commands
+tk.Button(buttons_frame, text="View All", width=12, command=view_command).grid(row=0, column=0, padx=5, pady=5)
+tk.Button(buttons_frame, text="Search", width=12, command=search_command).grid(row=1, column=0, padx=5, pady=5)
+tk.Button(buttons_frame, text="Add Entry", width=12, command=add_command).grid(row=2, column=0, padx=5, pady=5)
+tk.Button(buttons_frame, text="Update", width=12, command=update_command).grid(row=3, column=0, padx=5, pady=5)
+tk.Button(buttons_frame, text="Delete Selection", width=12, command=delete_command).grid(row=4, column=0, padx=5, pady=5)
+tk.Button(buttons_frame, text="Clear", width=12, command=clear_fields).grid(row=5, column=0, padx=5, pady=5)
+tk.Button(buttons_frame, text="Export to Excel", width=12, command=export_to_excel).grid(row=6, column=0, padx=5, pady=5)
+tk.Button(buttons_frame, text="Close", width=12, command=close_command).grid(row=7, column=0, padx=5, pady=5)
+
 
 # Start the main loop
 window.mainloop()
